@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Game Tic Tac Toe</title>
+
+<style>
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #0c0f0f, #f8f8f9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+h1 {
+  color: #fff;
+  margin-bottom: 20px;
+  text-shadow: 1px 1px 4px #000;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  gap: 10px;
+}
+
+.cell {
+  width: 100px;
+  height: 100px;
+  background: rgb(41, 40, 40);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 40px;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.cell:hover {
+  background: #0605059a;
+  transform: scale(1.05);
+}
+
+.message {
+  margin-top: 20px;
+  font-size: 22px;
+  color: white;
+  text-shadow: 1px 1px 3px #000;
+}
+
+.reset-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #2c2626;
+  color: white;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.reset-btn:hover {
+  background: #00000096;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Tic Tac Toe - Pindah Bidak</h1>
+<div class="board" id="board"></div>
+<div class="message" id="message"></div>
+<button class="reset-btn" onclick="resetGame()">Reset Game</button>
+
+<script>
+const board = document.getElementById('board');
+const message = document.getElementById('message');
+let currentPlayer = '❌';
+let cells = Array(9).fill(null);
+let playerMoves = { '❌': 0, '⭕': 0 };
+let gameOver = false;
+let selectedCell = null;
+
+function drawBoard() {
+  board.innerHTML = '';
+  cells.forEach((cell, index) => {
+    const cellElement = document.createElement('div');
+    cellElement.classList.add('cell');
+    cellElement.textContent = cell;
+    if (gameOver) return board.appendChild(cellElement);
+
+    cellElement.addEventListener('click', () => handleClick(index));
+    board.appendChild(cellElement);
+  });
+}
+
+function handleClick(index) {
+  if (gameOver) return;
+
+  if (selectedCell !== null && cells[index] === null) {
+    if (cells[selectedCell] === currentPlayer) {
+      cells[index] = currentPlayer;
+      cells[selectedCell] = null;
+      selectedCell = null;
+
+      if (checkWin(currentPlayer)) {
+        message.textContent = `${currentPlayer} MENANG 🎉`;
+        gameOver = true;
+      } else {
+        currentPlayer = currentPlayer === '❌' ? '⭕' : '❌';
+        message.textContent = `Giliran ${currentPlayer}`;
+      }
+      drawBoard();
+    }
+  } 
+  else if (cells[index] === currentPlayer && playerMoves[currentPlayer] === 3) {
+    selectedCell = index;
+    message.textContent = `${currentPlayer} pilih kotak kosong untuk memindahkan`;
+  } 
+  else if (cells[index] === null && playerMoves[currentPlayer] < 3) {
+    cells[index] = currentPlayer;
+    playerMoves[currentPlayer]++;
+
+    if (checkWin(currentPlayer)) {
+      message.textContent = `${currentPlayer} MENANG 🎉`;
+      gameOver = true;
+    } else {
+      currentPlayer = currentPlayer === '❌' ? '⭕' : '❌';
+      message.textContent = `Giliran ${currentPlayer}`;
+    }
+    drawBoard();
+  }
+}
+
+function checkWin(player) {
+  const winCombos = [
+    [0,1,2],[3,4,5],[6,7,8],
+    [0,3,6],[1,4,7],[2,5,8],
+    [0,4,8],[2,4,6]
+  ];
+  return winCombos.some(combo =>
+    combo.every(index => cells[index] === player)
+  );
+}
+
+function resetGame() {
+  cells = Array(9).fill(null);
+  playerMoves = { '❌': 0, '⭕': 0 };
+  currentPlayer = '❌';
+  gameOver = false;
+  selectedCell = null;
+  message.textContent = `Giliran ${currentPlayer}`;
+  drawBoard();
+}
+
+resetGame();
+</script>
+
+</body>
+</html>
